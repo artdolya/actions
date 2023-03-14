@@ -33,4 +33,4 @@ runs:
       working-directory: ./.infra
       shell: bash
       run: | 
-        terraform show -json tfplan | jq -r '.resource_changes | map(.address as $k | .change | { action: .actions[0]}) | group_by(.action) | map({ (.[0].action): length }) | add | "Plan: \(.create // 0) to add, \(.update // 0) to change, \(.delete // 0) to destroy."' > $GITHUB_STEP_SUMMARY
+        terraform show -json tfplan | jq -r '.resource_changes | map(.address as $k | .change | { action: .actions[0]}) | group_by(.action) | map({ (.[0].action): length }) | add | "Plan: \(.create // 0) to add, \(.update // 0) to change, \(.delete // 0) to destroy."' >> $GITHUB_STEP_SUMMARY
