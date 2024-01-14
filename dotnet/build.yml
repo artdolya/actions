@@ -8,6 +8,11 @@ on:
         required: false
         type: string
         default: "."
+      dotnet-version:
+        description: "Version of .NET Core SDK to use"
+        required: false
+        type: string
+        default: "8.x"
 
 jobs:
   build-dotnet:
@@ -20,7 +25,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.x
+          dotnet-version: ${{ inputs.dotnet-version }}
 
       - name: Install dependencies
         working-directory: ${{ inputs.work-dir }}
