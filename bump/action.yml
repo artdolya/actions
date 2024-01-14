@@ -16,6 +16,10 @@ inputs:
     required: false
     type: boolean
     default: true
+  repo-token:
+    description: 'The GitHub token used to manage labels'
+    required: false
+    default: ${{ github.token }}
 outputs:
   new_tag:
     description: 'New tag'
@@ -32,7 +36,7 @@ runs:
       uses: anothrNick/github-tag-action@v1
       id: bump
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.repo-token }}
         DEFAULT_BUMP: ${{ inputs.bump }}
         WITH_V: ${{ inputs.with_v }}
       
