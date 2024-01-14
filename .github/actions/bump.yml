@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      checkout:
+        description: 'Checkout'
+        required: false
+        type: boolean
+        default: true
     outputs:
       new_tag:
         description: 'New tag'
@@ -28,6 +33,7 @@ jobs:
       new_tag: ${{ steps.bump.outputs.new_tag }}
     steps:
       - name: Checkout
+        if: ${{ !inputs.checkout }}
         uses: actions/checkout@v4
 
       - name: Bump version and push tag
