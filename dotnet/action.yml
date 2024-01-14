@@ -51,19 +51,39 @@ runs:
       run: dotnet build --configuration Release --no-restore
 
     - name: Test
-      if: ${{ inputs.run-tests }}
+      if: ${{ inputs.run-tests == 'true' }}
       shell: bash
       working-directory: ${{ inputs.work-dir }}
       run: dotnet test --no-restore --verbosity normal
 
+    - name: Get Release Notes
+      if: ${{ inputs.publish-nuget == 'true' }}
+      uses: actions/github-script@v6
+      id: release-notes
+      env:
+        tag_name: ${{ github.event.release.tag_name }}
+        repo_name: ${{ github.event.repository.name }}
+        repo_owner: ${{ github.repository_owner }}
+      with:
+        retries: 3
+        script: |
+          console.log("Owner:"+process.env.repo_owner);
+          console.log("Repo:"+process.env.repo_name);
+          var result = await github.rest.repos.getReleaseByTag({
+            tag: process.env.tag_name,
+            owner: process.env.repo_owner,
+            repo: process.env.repo_name
+          });
+          return result.data.body;
+
     - name: Publish to Nuget
-      if: ${{ inputs.publish-nuget }}
+      if: ${{ inputs.publish-nuget == 'true' }}
       shell: bash
       working-directory: ${{ inputs.work-dir }}
-      run: dotnet pack -c Release /p:Version=${{ github.event.release.tag_name }} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true /p:EmbedUntrackedSources=true /p:PublishRepositoryUrl=true
+      run: dotnet pack -c Release /p:Version=${{ github.event.release.tag_name }} /p:PackageReleaseNotes=${{ steps.release-notes.outputs.result }} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true /p:EmbedUntrackedSources=true /p:PublishRepositoryUrl=true
 
     - name: Publish Nuget Package
-      if: ${{ inputs.publish-nuget }}
+      if: ${{ inputs.publish-nuget == 'true'  }}
       shell: bash
       working-directory: ${{ inputs.work-dir }}
       run: dotnet nuget push **/*.nupkg --api-key ${{ inputs.nuget-api-keye }} --source https://api.nuget.org/v3/index.json
