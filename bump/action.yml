@@ -1,44 +1,38 @@
 name: Bump SemVer version
 
-on:
-  workflow_call:
-    inputs:
-      bump:
-        description: 'Bump version'
-        required: false
-        type: string
-        default: 'patch'
-      with_v:
-        description: 'Prepend "v" to tag'
-        required: false
-        type: boolean
-        default: false
-      checkout:
-        description: 'Checkout'
-        required: false
-        type: boolean
-        default: true
-    outputs:
-      new_tag:
-        description: 'New tag'
-        value: ${{ steps.bump.outputs.new_tag }}
+inputs:
+  bump:
+    description: 'Bump version'
+    required: false
+    type: string
+    default: 'patch'
+  with_v:
+    description: 'Prepend "v" to tag'
+    required: false
+    type: boolean
+    default: false
+  checkout:
+    description: 'Checkout'
+    required: false
+    type: boolean
+    default: true
+outputs:
+  new_tag:
+    description: 'New tag'
+    value: ${{ steps.bump.outputs.new_tag }}
         
 runs:
   using: "composite"
-    permissions:
-      contents: write
-    outputs:
-      new_tag: ${{ steps.bump.outputs.new_tag }}
-    steps:
-      - name: Checkout
-        if: ${{ !inputs.checkout }}
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout
+      if: ${{ !inputs.checkout }}
+      uses: actions/checkout@v4
 
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@v1
-        id: bump
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BUMP: ${{ inputs.bump }}
-          WITH_V: ${{ inputs.with_v }}
+    - name: Bump version and push tag
+      uses: anothrNick/github-tag-action@v1
+      id: bump
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEFAULT_BUMP: ${{ inputs.bump }}
+        WITH_V: ${{ inputs.with_v }}
       
