@@ -1,0 +1,44 @@
+name: Bump SemVer version
+
+on:
+  workflow_call:
+    inputs:
+      bump:
+        description: 'Bump version'
+        required: false
+        type: string
+        default: 'patch'
+      with_v:
+        description: 'Prepend "v" to tag'
+        required: false
+        type: boolean
+        default: false
+    secrets: 
+      GITHUB_TOKEN:
+        description: 'GitHub Token'
+        required: true
+    outputs:
+      new_tag:
+        description: 'New tag'
+        value: ${{ jobs.bump-version.outputs.new_tag }}
+        
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    name: Bump version and push tag 
+    permissions:
+      contents: write
+    outputs:
+      new_tag: ${{ steps.bump.outputs.new_tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@v1
+        id: bump
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: ${{ inputs.bump }}
+          WITH_V: ${{ inputs.with_v }}
+      
