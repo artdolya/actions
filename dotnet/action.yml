@@ -86,4 +86,4 @@ runs:
       if: ${{ inputs.publish-nuget == 'true'  }}
       shell: bash
       working-directory: ${{ inputs.work-dir }}
-      run: dotnet nuget push **/*.nupkg --api-key ${{ inputs.nuget-api-keye }} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push **/*.nupkg --api-key ${{ inputs.nuget-api-key }} --source https://api.nuget.org/v3/index.json
