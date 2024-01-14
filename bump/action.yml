@@ -21,12 +21,10 @@ on:
     outputs:
       new_tag:
         description: 'New tag'
-        value: ${{ jobs.bump-version.outputs.new_tag }}
+        value: ${{ steps.bump.outputs.new_tag }}
         
-jobs:
-  bump-version:
-    runs-on: ubuntu-latest
-    name: Bump version and push tag 
+runs:
+  using: "composite"
     permissions:
       contents: write
     outputs:
