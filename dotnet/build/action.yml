@@ -1,21 +1,20 @@
 name: 'Build .NET Core app'
 inputs:
-  inputs:
-    work-dir:
-      description: "Path to the solution/project file"
-      required: false
-      type: string
-      default: "."
-    dotnet-version:
-      description: "Version of .NET Core SDK to use"
-      required: false
-      type: string
-      default: "8.x"
-    run-tests:
-      description: "Run tests"
-      required: false
-      type: boolean
-      default: false
+  work-dir:
+    description: "Path to the solution/project file"
+    required: false
+    type: string
+    default: "."
+  dotnet-version:
+    description: "Version of .NET Core SDK to use"
+    required: false
+    type: string
+    default: "8.x"
+  run-tests:
+    description: "Run tests"
+    required: false
+    type: boolean
+    default: false
 
 branding:
   icon: 'check'
