@@ -33,14 +33,17 @@ runs:
         dotnet-version: ${{ inputs.dotnet-version }}
 
     - name: Install dependencies
+      shell: bash
       working-directory: ${{ inputs.work-dir }}
       run: dotnet restore
 
     - name: Build
+      shell: bash
       working-directory: ${{ inputs.work-dir }}
       run: dotnet build --configuration Release --no-restore
 
     - name: Test
       if: ${{ inputs.run-tests }}
+      shell: bash
       working-directory: ${{ inputs.work-dir }}
       run: dotnet test --no-restore --verbosity normal
