@@ -15,11 +15,6 @@ inputs:
     required: false
     type: boolean
     default: false
-  publish-nuget:
-    description: "Publish NuGet package"
-    required: false
-    type: boolean
-    default: false
   nuget-api-key:
     description: "Nuget Api Key"
     required: false
@@ -74,8 +69,18 @@ runs:
       working-directory: ${{ inputs.work-dir }}
       run: dotnet test --no-restore --verbosity normal
 
+    - name: Publis Nuget Required
+      id: publish-nuget
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.nuget-api-key }}" ]; then
+          echo "configured=false" >> $GITHUB_OUTPUT
+        else
+          echo "configured=true" >> $GITHUB_OUTPUT
+        fi
+
     - name: Get Release Notes
-      if: ${{ inputs.publish-nuget == 'true' }}
+      if: ${{ steps.publish-nuget.outputs.configured == 'true' }}
       uses: actions/github-script@v6
       id: release-notes
       env:
@@ -95,13 +100,13 @@ runs:
           return result.data.body;
 
     - name: Publish to Nuget
-      if: ${{ inputs.publish-nuget == 'true' }}
+      if: ${{ steps.publish-nuget.outputs.configured == 'true' }}
       shell: bash
       working-directory: ${{ inputs.work-dir }}
       run: dotnet pack -c Release /p:Version=${{ github.event.release.tag_name }} /p:PackageReleaseNotes=${{ steps.release-notes.outputs.result }} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true /p:EmbedUntrackedSources=true /p:PublishRepositoryUrl=true
 
     - name: Publish Nuget Package
-      if: ${{ inputs.publish-nuget == 'true'  }}
+      if: ${{ steps.publish-nuget.outputs.configured == 'true' }}
       shell: bash
       working-directory: ${{ inputs.work-dir }}
       run: dotnet nuget push **/*.nupkg --api-key ${{ inputs.nuget-api-key }} --source https://api.nuget.org/v3/index.json
