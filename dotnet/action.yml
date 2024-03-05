@@ -35,10 +35,26 @@ runs:
     - name: Checkout
       uses: actions/checkout@v4
 
+   - name: Check for .NET Version Env Var
+      id: check_dotnet
+      run: |
+        if [ -z "${{ env.DOTNET_VERSION }}" ]; then
+          echo "DOTNET_VERSION not set."
+          echo "setup_required=true" >> $GITHUB_ENV
+        else
+          echo "DOTNET_VERSION is set to $DOTNET_VERSION."
+          echo "setup_required=false" >> $GITHUB_ENV
+        fi
+
     - name: Setup .NET ${{ inputs.dotnet-version }}
-      uses: actions/setup-dotnet@v4
+      if: env.setup_required == 'true'
+      uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ inputs.dotnet-version }}
+        dotnet-version: '${{ inputs.dotnet-version }}'
+
+    - name: Set DOTNET_VERSION if not set
+      if: env.setup_required == 'true'
+      run: echo "DOTNET_VERSION=${{ inputs.dotnet-version }}" >> $GITHUB_ENV
 
     - name: Install dependencies
       shell: bash
