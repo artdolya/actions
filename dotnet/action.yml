@@ -50,7 +50,6 @@ runs:
     - name: Setup .NET ${{ inputs.dotnet-version }}
       if: env.setup_required == 'true'
       uses: actions/setup-dotnet@v4
-      shell: bash
       with:
         dotnet-version: '${{ inputs.dotnet-version }}'
 
