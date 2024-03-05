@@ -37,6 +37,7 @@ runs:
 
     - name: Check for .NET Version Env Var
       id: check_dotnet
+      shell: bash
       run: |
         if [ -z "${{ env.DOTNET_VERSION }}" ]; then
           echo "DOTNET_VERSION not set."
@@ -49,11 +50,13 @@ runs:
     - name: Setup .NET ${{ inputs.dotnet-version }}
       if: env.setup_required == 'true'
       uses: actions/setup-dotnet@v4
+      shell: bash
       with:
         dotnet-version: '${{ inputs.dotnet-version }}'
 
     - name: Set DOTNET_VERSION if not set
       if: env.setup_required == 'true'
+      shell: bash
       run: echo "DOTNET_VERSION=${{ inputs.dotnet-version }}" >> $GITHUB_ENV
 
     - name: Install dependencies
