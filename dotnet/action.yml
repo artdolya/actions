@@ -53,6 +53,11 @@ runs:
       shell: bash
       run: echo "DOTNET_VERSION=${{ inputs.dotnet-version }}" >> $GITHUB_ENV
 
+    - name: List sources
+      shell: bash
+      working-directory: ${{ inputs.work-dir }}
+      run: find .
+
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.work-dir }}
@@ -69,7 +74,7 @@ runs:
       working-directory: ${{ inputs.work-dir }}
       run: dotnet test --no-restore --verbosity normal
 
-    - name: Publis Nuget Required
+    - name: Publish Nuget Required
       id: publish-nuget
       shell: bash
       run: |
