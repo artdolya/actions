@@ -81,7 +81,7 @@ runs:
         else
           echo "configured=true" >> $GITHUB_OUTPUT
           echo "✅ NuGet API key length: ${#NUGET_API_KEY}"
-          echo "🔹 Masked Key (First 4 chars): $(echo "$NUGET_API_KEY" | sed 's/./*/g' | sed 's/^....//')"
+          echo "🔹 First 4 chars: ${NUGET_API_KEY:0:4}"
         fi
 
     - name: Get Release Notes
