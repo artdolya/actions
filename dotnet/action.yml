@@ -30,8 +30,6 @@ branding:
 
 runs:
   using: "composite"
-  env:
-    NUGET_API_KEY: ${{ inputs.nuget-api-key }}
   steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -118,5 +116,7 @@ runs:
     - name: Publish Nuget Package
       if: ${{ steps.publish-nuget.outputs.configured == 'true' }}
       shell: bash
+      env:
+        NUGET_API_KEY: ${{ inputs.nuget-api-key }}
       working-directory: ${{ inputs.work-dir }}
       run: dotnet nuget push **/*.nupkg --api-key ${{ inputs.nuget-api-key }} --source https://api.nuget.org/v3/index.json
