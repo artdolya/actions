@@ -99,11 +99,14 @@ runs:
           });
           return result.data.body;
 
+
     - name: Publish to Nuget
       if: ${{ steps.publish-nuget.outputs.configured == 'true' }}
       shell: bash
       working-directory: ${{ inputs.work-dir }}
-      run: dotnet pack -c Release /p:Version=${{ github.event.release.tag_name }} /p:PackageReleaseNotes=${{ steps.release-notes.outputs.result }} /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true /p:EmbedUntrackedSources=true /p:PublishRepositoryUrl=true
+      run: |
+        echo -e "${{ steps.release-notes.outputs.result }}" > release-notes.txt
+        dotnet pack -c Release /p:Version=${{ github.event.release.tag_name }} /p:ReleaseNotesFile=release-notes.txt /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true /p:EmbedUntrackedSources=true /p:PublishRepositoryUrl=true
 
     - name: Publish Nuget Package
       if: ${{ steps.publish-nuget.outputs.configured == 'true' }}
