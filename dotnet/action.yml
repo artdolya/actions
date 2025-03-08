@@ -73,10 +73,12 @@ runs:
       id: publish-nuget
       shell: bash
       run: |
-        if [ -z "${{ inputs.nuget-api-key }}" ]; then
+        if [ -z "${{ inputs.nuget-api-key }}" ] || [ ${#INPUT_NUGET_API_KEY} -eq 0 ]; then
           echo "configured=false" >> $GITHUB_OUTPUT
+          echo "NuGet API key is empty or not set!"
         else
           echo "configured=true" >> $GITHUB_OUTPUT
+          echo "NuGet API key length: ${#INPUT_NUGET_API_KEY}"
         fi
 
     - name: Get Release Notes
