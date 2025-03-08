@@ -24,15 +24,14 @@ outputs:
     description: "Generated release notes"
     value: ${{ steps.release-notes.outputs.result }}
 
-env:
-  NUGET_API_KEY: ${{ inputs.nuget-api-key }}
-
 branding:
   icon: 'check'
   color: 'green'
 
 runs:
   using: "composite"
+  env:
+    NUGET_API_KEY: ${{ inputs.nuget-api-key }}
   steps:
     - name: Checkout
       uses: actions/checkout@v4
