@@ -15,10 +15,6 @@ inputs:
     required: false
     type: boolean
     default: false
-  nuget-api-key:
-    description: "Nuget Api Key"
-    required: false
-    type: string
 outputs:
   release-notes:
     description: "Generated release notes"
@@ -76,17 +72,19 @@ runs:
     - name: Publish Nuget Required
       id: publish-nuget
       shell: bash
+      env:
+        NUGET_API_KEY: ${{ inputs.nuget-api-key }}
       run: |
-        if [ -z "${{ inputs.nuget-api-key }}" ] || [ "${{ inputs.nuget-api-key }}" -eq 0 ]; then
+        if [ -z "$NUGET_API_KEY" ]; then
           echo "configured=false" >> $GITHUB_OUTPUT
-          echo "NuGet API key is empty or not set!"
+          echo "❌ NuGet API key is empty or not set!"
         else
           echo "configured=true" >> $GITHUB_OUTPUT
-          echo "NuGet API key length: ${{ inputs.nuget-api-key }}"
+          echo "✅ NuGet API key length: ${#NUGET_API_KEY}"
+          echo "🔹 Masked Key (First 4 chars): $(echo "$NUGET_API_KEY" | sed 's/./*/g' | sed 's/^....//')"
         fi
 
     - name: Get Release Notes
-      #if: ${{ steps.publish-nuget.outputs.configured == 'true' }}
       uses: actions/github-script@v6
       id: release-notes
       env:
@@ -112,6 +110,7 @@ runs:
       run: |
         printf "%s" ${{ steps.release-notes.outputs.result }} > release-notes.txt
 
+
     - name: Publish to Nuget
       if: ${{ steps.publish-nuget.outputs.configured == 'true' }}
       shell: bash
@@ -123,6 +122,6 @@ runs:
       if: ${{ steps.publish-nuget.outputs.configured == 'true' }}
       shell: bash
       env:
-        NUGET_API_KEY: ${{ inputs.nuget-api-key }}
+        NUGET_API_KEY: ${{ env.NUGET_API_KEY }}
       working-directory: ${{ inputs.work-dir }}
       run: dotnet nuget push **/*.nupkg --api-key ${{ inputs.nuget-api-key }} --source https://api.nuget.org/v3/index.json
