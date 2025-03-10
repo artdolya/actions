@@ -77,11 +77,11 @@ runs:
       run: |
         if [ -z "$NUGET_API_KEY" ]; then
           echo "configured=false" >> $GITHUB_OUTPUT
-          echo "❌ NuGet API key is empty or not set!"
+          echo "NuGet API key is empty or not set!"
         else
           echo "configured=true" >> $GITHUB_OUTPUT
-          echo "✅ NuGet API key length: ${#NUGET_API_KEY}"
-          echo "🔹 First 4 chars: ${NUGET_API_KEY:0:4}"
+          echo "NuGet API key length: ${#NUGET_API_KEY}"
+          echo "First 4 chars: ${NUGET_API_KEY:0:4}"
         fi
 
     - name: Get Release Notes
