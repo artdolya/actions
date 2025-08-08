@@ -15,6 +15,10 @@ inputs:
     required: false
     type: boolean
     default: false
+  signing-key:
+    description: "Signing key for the assembly"
+    required: false
+    type: string
 outputs:
   release-notes:
     description: "Generated release notes"
@@ -110,12 +114,22 @@ runs:
         printf "%s" ${{ steps.release-notes.outputs.result }} > release-notes.txt
 
 
-    - name: Publish to Nuget
-      if: ${{ steps.publish-nuget.outputs.configured == 'true' }}
+    - name: Pack and Sign Assembly
+      if: ${{ inputs.signing-key != '' && steps.publish-nuget.outputs.configured == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.work-dir }}
+      env:
+        SIGNING_KEY: ${{ inputs.signing-key }}
+      run: |
+        echo "$SIGNING_KEY" > signing-key.snk
+        dotnet pack -c Release --no-build /p:Version=${{ github.event.release.tag_name }} /p:ReleaseNotesFile=release-notes.txt /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true /p:EmbedUntrackedSources=true /p:PublishRepositoryUrl=true /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=signing-key.snk
+
+    - name: Pack without Signing
+      if: ${{ (inputs.signing-key == '' || inputs.signing-key == null) && steps.publish-nuget.outputs.configured == 'true' }}
       shell: bash
       working-directory: ${{ inputs.work-dir }}
       run: |
-        dotnet pack -c Release /p:Version=${{ github.event.release.tag_name }} /p:ReleaseNotesFile=release-notes.txt /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true /p:EmbedUntrackedSources=true /p:PublishRepositoryUrl=true
+        dotnet pack -c Release --no-build /p:Version=${{ github.event.release.tag_name }} /p:ReleaseNotesFile=release-notes.txt /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true /p:EmbedUntrackedSources=true /p:PublishRepositoryUrl=true
 
     - name: Publish Nuget Package
       if: ${{ steps.publish-nuget.outputs.configured == 'true' }}
