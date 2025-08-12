@@ -62,7 +62,16 @@ runs:
       working-directory: ${{ inputs.work-dir }}
       run: dotnet restore
 
-    - name: Build
+
+    - name: Build (with signing)
+      if: ${{ inputs.signing-key != '' }}
+      shell: bash
+      working-directory: ${{ inputs.work-dir }}
+      run: |
+        dotnet build --configuration Release --no-restore /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=${{ inputs.signing-key }}
+
+    - name: Build (without signing)
+      if: ${{ inputs.signing-key == '' || inputs.signing-key == null }}
       shell: bash
       working-directory: ${{ inputs.work-dir }}
       run: dotnet build --configuration Release --no-restore
@@ -113,16 +122,12 @@ runs:
       run: |
         printf "%s" ${{ steps.release-notes.outputs.result }} > release-notes.txt
 
-
-    - name: Pack and Sign Assembly
+    - name: Pack with Signing
       if: ${{ inputs.signing-key != '' && steps.publish-nuget.outputs.configured == 'true' }}
       shell: bash
       working-directory: ${{ inputs.work-dir }}
-      env:
-        SIGNING_KEY: ${{ inputs.signing-key }}
       run: |
-        echo "$SIGNING_KEY" > signing-key.snk
-        dotnet pack -c Release --no-build /p:Version=${{ github.event.release.tag_name }} /p:ReleaseNotesFile=release-notes.txt /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true /p:EmbedUntrackedSources=true /p:PublishRepositoryUrl=true /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=signing-key.snk
+        dotnet pack -c Release --no-build /p:Version=${{ github.event.release.tag_name }} /p:ReleaseNotesFile=release-notes.txt /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:ContinuousIntegrationBuild=true /p:EmbedUntrackedSources=true /p:PublishRepositoryUrl=true /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=${{ inputs.signing-key }}
 
     - name: Pack without Signing
       if: ${{ (inputs.signing-key == '' || inputs.signing-key == null) && steps.publish-nuget.outputs.configured == 'true' }}
